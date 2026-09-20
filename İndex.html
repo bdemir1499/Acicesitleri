@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cıvıl Cıvıl Açı Çarkı</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+
+        /* Dikey sığma problemini çözen dinamik yükseklik (100dvh) */
+        body {
+            font-family: 'Nunito', 'Comic Sans MS', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            margin: 0;
+            padding: 8px; 
+            min-height: 100dvh; 
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 450px;
+            padding: 12px 10px; 
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px; 
+            border: 4px solid #fff;
+            outline: 4px dashed #ff9a9e;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #ff6b81;
+            font-size: 1.6rem;
+            margin: 0;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0px #ffeaa7;
+            line-height: 1.1;
+        }
+
+        #protractor-svg {
+            width: 100%;
+            max-height: 42vh; 
+            height: auto;
+            user-select: none;
+        }
+
+        .controls {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 90%;
+            margin: 0;
+            height: 12px;
+            background: #dfe6e9;
+            border-radius: 10px;
+            outline: none;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ff4757;
+            cursor: pointer;
+            border: 4px solid white;
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.5);
+        }
+
+        .info-panel {
+            background: #f1f2f6;
+            padding: 10px;
+            border-radius: 15px;
+            width: 90%;
+            box-sizing: border-box;
+            border: 3px solid #dfe4ea;
+            display: flex;
+            justify-content: space-around; 
+            align-items: center;
+            transition: all 0.3s ease;
+            margin: 0;
+        }
+
+        .info-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.2;
+        }
+
+        .info-box small {
+            font-size: 0.85rem;
+            color: #636e72;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .info-box span {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+        }
+
+        /* Dış Etiketler */
+        .label-text { 
+            font-weight: 900; 
+            font-size: 34px; 
+            letter-spacing: 2px;
+            paint-order: stroke fill;
+            stroke: #ffffff;
+            stroke-width: 10px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .dar-text { fill: #2ed573; }   
+        .dik-text { fill: #ff4757; }   
+        .genis-text { fill: #ffa502; } 
+        .dogru-text { fill: #9b59b6; } 
+
+        .tick-line { stroke: #636e72; stroke-width: 2; }
+        .tick-line-bold { stroke: #2d3436; stroke-width: 4; } 
+        .tick-text { font-size: 18px; fill: #2d3436; font-weight: 900; }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>Renkli Açı Çarkı</h1>
+        
+        <svg id="protractor-svg" viewBox="0 0 800 800">
+            <circle cx="400" cy="400" r="260" fill="#ffffff" stroke="#2d3436" stroke-width="6"/>
+            <path id="angleWedge" d="" fill="#2ed573" fill-opacity="0.95" stroke="#2d3436" stroke-width="4" />
+            <g id="ticksAndLabels"></g>
+
+            <text x="630" y="170" class="label-text dar-text" text-anchor="middle" transform="rotate(-45, 630, 170)">DAR AÇI</text>
+            <text x="400" y="70" class="label-text dik-text" text-anchor="middle">DİK AÇI</text>
+            <text x="170" y="170" class="label-text genis-text" text-anchor="middle" transform="rotate(45, 170, 170)">GENİŞ AÇI</text>
+            <text x="60" y="400" class="label-text dogru-text" text-anchor="middle" transform="rotate(-90, 60, 400)">DOĞRU AÇI</text>
+        </svg>
+
+        <div class="controls">
+            <input type="range" id="angleSlider" min="0" max="360" value="180" step="1">
+            
+            <div class="info-panel" id="infoPanel">
+                <div class="info-box">
+                    <small>Oluşan Açı</small>
+                    <span id="angleValueDisplay" style="color: #9b59b6">180°</span>
+                </div>
+                <div class="info-box">
+                    <small>Açı Türü</small>
+                    <span id="angleTypeDisplay" style="color: #9b59b6">Doğru Açı</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cx = 400;
+        const cy = 400;
+        const radius = 260; 
+        
+        const svgTicksAndLabels = document.getElementById('ticksAndLabels');
+        const angleWedge = document.getElementById('angleWedge');
+        const angleSlider = document.getElementById('angleSlider');
+        const angleValueDisplay = document.getElementById('angleValueDisplay');
+        const angleTypeDisplay = document.getElementById('angleTypeDisplay');
+        const infoPanel = document.getElementById('infoPanel');
+
+        function drawProtractor() {
+            let elements = '';
+            for (let deg = 0; deg < 360; deg += 10) {
+                let rad = deg * (Math.PI / 180);
+                let tickLength = (deg % 90 === 0) ? 25 : (deg % 30 === 0 ? 18 : 12);
+                let lineClass = (deg % 90 === 0) ? "tick-line-bold" : "tick-line";
+
+                let x1 = cx + (radius - tickLength) * Math.cos(rad);
+                let y1 = cy - (radius - tickLength) * Math.sin(rad); 
+                let x2 = cx + radius * Math.cos(rad);
+                let y2 = cy - radius * Math.sin(rad);
+                
+                elements += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${lineClass}" />`;
+
+                let tx = cx + (radius - 48) * Math.cos(rad);
+                let ty = cy - (radius - 48) * Math.sin(rad);
+                
+                elements += `<text x="${tx}" y="${ty}" class="tick-text" text-anchor="middle" alignment-baseline="middle">${deg}°</text>`;
+            }
+            svgTicksAndLabels.innerHTML = elements;
+        }
+
+        function updateAngle(deg) {
+            let drawDeg = deg == 360 ? 359.99 : deg;
+            let rad = drawDeg * (Math.PI / 180);
+            
+            let endX = cx + radius * Math.cos(rad);
+            let endY = cy - radius * Math.sin(rad);
+            let largeArcFlag = drawDeg > 180 ? 1 : 0;
+            
+            let pathData = `M ${cx} ${cy} 
+                            L ${cx + radius} ${cy} 
+                            A ${radius} ${radius} 0 ${largeArcFlag} 0 ${endX} ${endY} 
+                            Z`;
+            
+            if(deg == 0) pathData = ""; 
+            angleWedge.setAttribute('d', pathData);
+
+            let type = ""; let color = ""; let bgColor = "";
+            if (deg == 0) {
+                type = "Sıfır Açı (0°)"; color = "#636e72"; bgColor = "#dfe6e9";
+            } else if (deg > 0 && deg < 90) {
+                type = "Dar Açı"; color = "#2ed573"; bgColor = "#e8fbf0"; 
+            } else if (deg == 90) {
+                type = "Dik Açı"; color = "#ff4757"; bgColor = "#ffe3e5"; 
+            } else if (deg > 90 && deg < 180) {
+                type = "Geniş Açı"; color = "#ffa502"; bgColor = "#fff4e0"; 
+            } else if (deg == 180) {
+                type = "Doğru Açı"; color = "#9b59b6"; bgColor = "#f4eaff"; 
+            } else if (deg > 180 && deg < 360) {
+                // "Yansık Açı" etiketi kaldırıldı, yerine "-" eklendi
+                type = "-"; color = "#1e90ff"; bgColor = "#e6f2ff"; 
+            } else if (deg == 360) {
+                type = "Tam Açı"; color = "#ff6b81"; bgColor = "#ffe8eb"; 
+            }
+
+            angleWedge.setAttribute('fill', color);
+            angleValueDisplay.innerText = deg + "°";
+            angleValueDisplay.style.color = color;
+            angleTypeDisplay.innerText = type;
+            angleTypeDisplay.style.color = color;
+            
+            infoPanel.style.borderColor = color;
+            infoPanel.style.backgroundColor = bgColor;
+        }
+
+        angleSlider.addEventListener('input', (e) => {
+            updateAngle(parseInt(e.target.value));
+        });
+
+        drawProtractor();
+        updateAngle(180); 
+    </script>
+</body>
+</html>
